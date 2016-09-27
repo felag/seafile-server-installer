@@ -54,6 +54,7 @@ SEAFILE_SERVER_FILESERVER_PORT=8082
 # Without trailing slash
 SEAFILE_SERVER_HOME=/opt/seafile
 SEAFILE_SERVER_TIME_ZONE="Europe/Berlin"
+SEAFILE_SERVER_SYMLINK=${SEAFILE_SERVER_HOME}/seafile-server-latest
 
 # Don't touch the following variable, unless you know what you are doing
 export DEBIAN_FRONTEND=noninteractive
@@ -791,7 +792,6 @@ SEAF_SERVER_INIT=${SEAFILE_SERVER_INSTALL_PATH}/seafile/bin/seaf-server-init
 MEDIA_DIR=${SEAFILE_SERVER_INSTALL_PATH}/seahub/media
 ORIG_AVATAR_DIR=${SEAFILE_SERVER_INSTALL_PATH}/seahub/media/avatars
 DEST_AVATAR_DIR=${SEAFILE_SERVER_HOME}/seahub-data/avatars
-SEAFILE_SERVER_SYMLINK=${SEAFILE_SERVER_HOME}/seafile-server-latest
 
 # Create ccnet conf
 export SEAFILE_LD_LIBRARY_PATH=${SEAFILE_SERVER_INSTALL_PATH}/seafile/lib/:${SEAFILE_SERVER_INSTALL_PATH}/seafile/lib64:${LD_LIBRARY_PATH}
@@ -965,7 +965,7 @@ fi
 function setup-seafile-server-logrotate {
 apt-get install logrotate -y
 cat > /etc/logrotate.d/seafile <<EOF
-${SEAFILE_SERVER_HOME}/logs/seaf-server.log
+${SEAFILE_SERVER_HOME}/logs/seafile.log ${SEAFILE_SERVER_HOME}/logs/controller.log
 {
   daily
   missingok
@@ -975,7 +975,7 @@ ${SEAFILE_SERVER_HOME}/logs/seaf-server.log
   notifempty
   sharedscripts
   postrotate
-    [ ! -f ${SEAFILE_SERVER_HOME}/pids/seaf-server.pid ] || kill -USR1 \${cat ${SEAFILE_SERVER_HOME}/pids/seaf-server.pid}
+    [ ! -f ${SEAFILE_SERVER_HOME}/pids/seaf-server.pid ] || kill -USR1 \$(cat ${SEAFILE_SERVER_HOME}/pids/seaf-server.pid)
   endscript
 }
 
@@ -989,7 +989,35 @@ ${SEAFILE_SERVER_HOME}/logs/ccnet.log
   notifempty
   sharedscripts
   postrotate
-    [ ! -f ${SEAFILE_SERVER_HOME}/pids/ccnet.pid ] || kill -USR1 \${cat ${SEAFILE_SERVER_HOME}/pids/ccnet.pid}
+    [ ! -f ${SEAFILE_SERVER_HOME}/pids/ccnet.pid ] || kill -USR1 \$(cat ${SEAFILE_SERVER_HOME}/pids/ccnet.pid)
+  endscript
+}
+
+${SEAFILE_SERVER_HOME}/logs/seafdav.log
+{
+  daily
+  missingok
+  rotate 52
+  compress
+  delaycompress
+  notifempty
+  sharedscripts
+  postrotate
+    [ ! -f ${SEAFILE_SERVER_HOME}/pids/seafdav.pid ] || kill -USR1 \$(cat ${SEAFILE_SERVER_HOME}/pids/seafdav.pid)
+  endscript
+}
+
+${SEAFILE_SERVER_HOME}/logs/seahub.log ${SEAFILE_SERVER_HOME}/logs/seahub_django_request.log
+{
+  daily
+  missingok
+  rotate 52
+  compress
+  delaycompress
+  notifempty
+  sharedscripts
+  postrotate
+    [ ! -f ${SEAFILE_SERVER_SYMLINK}/runtime/seafdav.pid ] || kill -USR1 \$(cat ${SEAFILE_SERVER_SYMLINK}/runtime/seafdav.pid)
   endscript
 }
 EOF
