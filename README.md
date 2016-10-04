@@ -113,7 +113,7 @@ For **Debian Wheezy and Jessie (64bit only)** run the following lines as root
 
     apt-get install lsb-release -y
     cd /root
-    wget --no-check-certificate https://raw.githubusercontent.com/seafile/seafile-server-installer/master/seafile_debian
+    wget --no-check-certificate https://raw.githubusercontent.com/seafile/seafile-server-installer/master/seafile_v5_debian
     bash seafile_debian
 
 
